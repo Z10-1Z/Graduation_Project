@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\MedicalRecordController;
 use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\ChatController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -40,8 +41,12 @@ Route::middleware(['auth:sanctum', 'role:patient'])->group(function () {
     Route::post('/invoices/{invoiceRef}/pay', [PatientController::class, 'payInvoice'])->where('invoiceRef', '[A-Za-z0-9#\\-._]+');
 });
 
-// AI chat — مخطط لاحقاً (الواجهة تستخدم ردود mock محلياً؛ أضف AiController عند التفعيل)
-// Route::middleware('throttle:20,1')->post('/ai/chat', [AiController::class, 'chat']);
+Route::middleware(['auth:sanctum', 'throttle:20,1'])->prefix('chat')->group(function () {
+    Route::post('/conversations', [ChatController::class, 'storeConversation']);
+    Route::get('/conversations', [ChatController::class, 'index']);
+    Route::get('/conversations/{conversation}', [ChatController::class, 'show']);
+    Route::post('/send', [ChatController::class, 'send']);
+});
 
 Route::middleware(['auth:sanctum', 'role:doctor'])->group(function () {
     Route::post('/doctor/profile', [DoctorController::class, 'updateProfile']);
