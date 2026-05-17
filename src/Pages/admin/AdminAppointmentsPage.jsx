@@ -139,7 +139,7 @@ export default function AdminAppointmentsPage() {
             </button>
           ))}
         </div>
-        <div className="relative flex-1 min-w-48">
+        <div className="relative flex-1 min-w-0 sm:min-w-48">
           <input
             type="text"
             value={search}

@@ -5,33 +5,62 @@ import BrandLogo from './BrandLogo';
 import { Phone, Mail, MapPin, Instagram, Twitter } from 'lucide-react';
 import { PUBLIC_DOCTORS } from '../data/publicDoctors';
 import { getSpecialtyOptionsFromDoctors } from '../utils/specialtyFilter';
+import { mapSpecialtyOptions } from '../utils/specialtyI18n';
 import { useResponsiveSpecLimit } from '../hooks/useResponsiveSpecLimit';
 
-export default function PublicFooter() {
-  const { t } = useTranslation();
+const QUICK_LINK_DEFS = [
+  { to: '/', labelKey: 'publicNav.home' },
+  { to: '/doctors', labelKey: 'publicNav.doctors' },
+  { to: '/#services', labelKey: 'home.footer.linkServices' },
+  { to: '/about', labelKey: 'publicNav.about' },
+  { to: '/contact', labelKey: 'publicNav.contact' },
+];
+
+export default function PublicFooter({ variant = 'full' }) {
+  const { t, i18n } = useTranslation();
+  const lng = i18n.resolvedLanguage || i18n.language || 'ar';
   const specLimit = useResponsiveSpecLimit();
-  const quickLinks = useMemo(() => {
-    const v = t('home.footer.quickLinks', { returnObjects: true });
-    return Array.isArray(v) ? v : [];
-  }, [t]);
-  const specLinks = useMemo(() => {
-    return getSpecialtyOptionsFromDoctors(PUBLIC_DOCTORS, false);
-  }, []);
-  const visibleSpecLinks = useMemo(() => specLinks.slice(0, specLimit), [specLinks, specLimit]);
-  const quickLinkRoutes = useMemo(
-    () => ['/', '/doctors', '/#services', '/about', '/contact'],
-    []
+  const isCompact = variant === 'compact';
+
+  const quickLinks = useMemo(
+    () => QUICK_LINK_DEFS.map(({ to, labelKey }) => ({ to, label: t(labelKey) })),
+    [t, lng]
   );
+
+  const specLinks = useMemo(
+    () => mapSpecialtyOptions(getSpecialtyOptionsFromDoctors(PUBLIC_DOCTORS, false), t),
+    [t, lng]
+  );
+
+  const visibleSpecLinks = useMemo(() => specLinks.slice(0, specLimit), [specLinks, specLimit]);
   const specialtyHref = (name) => `/doctors?specialty=${encodeURIComponent(name)}`;
 
+  if (isCompact) {
+    return (
+      <footer key={lng} className="text-white font-black py-4 px-4 md:px-8" style={{ backgroundColor: '#779ef2' }}>
+        <div className="page-shell flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-start">
+          <p className="text-blue-200 text-xs">{t('home.footer.copyright')}</p>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-blue-200 text-xs">
+            <Link to="/" className="hover:text-white transition-colors">{t('publicNav.home')}</Link>
+            <Link to="/contact" className="hover:text-white transition-colors">{t('publicNav.contact')}</Link>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   return (
-    <footer className="text-white font-black pt-10 pb-6 px-4 md:px-8" style={{ backgroundColor: '#779ef2' }}>
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-8 items-start text-start">
-          <div className="sm:col-span-2 lg:col-span-1">
+    <footer
+      key={lng}
+      className="text-white font-black pt-8 md:pt-10 pb-6 px-4 md:px-8"
+      style={{ backgroundColor: '#779ef2' }}
+    >
+      <div className="page-shell">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-8 items-start text-start">
+          <div className="md:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2 mb-3">
               <div className="flex items-center justify-center">
-                <BrandLogo className="h-20 w-20 object-contain" />
+                <BrandLogo className="h-14 w-14 sm:h-16 sm:w-16 object-contain" />
               </div>
               <span className="font-bold text-lg">{t('home.footer.brand')}</span>
             </div>
@@ -60,13 +89,13 @@ export default function PublicFooter() {
           <div>
             <h4 className="font-bold mb-3 text-sm">{t('home.footer.quickLinksTitle')}</h4>
             <ul className="space-y-2">
-              {quickLinks.map((link, index) => (
-                <li key={link}>
+              {quickLinks.map(({ to, label }) => (
+                <li key={to}>
                   <Link
-                    to={quickLinkRoutes[index] || '/'}
+                    to={to}
                     className="text-blue-100 text-xs transition-all duration-200 hover:text-white ltr:hover:translate-x-0.5 rtl:hover:-translate-x-0.5 motion-reduce:hover:translate-x-0 inline-block"
                   >
-                    {link}
+                    {label}
                   </Link>
                 </li>
               ))}
@@ -76,12 +105,12 @@ export default function PublicFooter() {
             <h4 className="font-bold mb-3 text-sm">{t('home.footer.specialtiesTitle')}</h4>
             <ul className="space-y-2 max-h-64 sm:max-h-none overflow-y-auto sm:overflow-visible pr-1 sm:pr-0 [scrollbar-width:thin]">
               {visibleSpecLinks.map((link) => (
-                <li key={link}>
+                <li key={link.value}>
                   <Link
-                    to={specialtyHref(link)}
+                    to={specialtyHref(link.value)}
                     className="text-blue-100 text-xs transition-all duration-200 hover:text-white ltr:hover:translate-x-0.5 rtl:hover:-translate-x-0.5 motion-reduce:hover:translate-x-0 inline-block"
                   >
-                    {link}
+                    {link.label}
                   </Link>
                 </li>
               ))}
@@ -91,7 +120,7 @@ export default function PublicFooter() {
                     to="/doctors"
                     className="text-white text-xs font-semibold underline underline-offset-4"
                   >
-                    {t('home.doctors.viewAll')}
+                    {t('home.footer.viewAllSpecialties')}
                   </Link>
                 </li>
               ) : null}

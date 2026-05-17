@@ -122,10 +122,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ fontFamily: 'Cairo, sans-serif' }}>
+    <div className="min-w-0 w-full overflow-x-clip" style={{ fontFamily: 'Cairo, sans-serif' }}>
       <MedicalBackground />
       <PublicNavbar cta={{ to: '/register', labelKey: 'publicNav.register' }} />
-      <div className="relative z-10 min-h-screen flex flex-col" style={{ backgroundColor: 'transparent' }}>
+      <div className="page-viewport min-h-screen flex flex-col" style={{ backgroundColor: 'transparent' }}>
         <div className="flex-1 flex items-center justify-center py-8 px-4 w-full">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
@@ -135,7 +135,7 @@ export default function LoginPage() {
             <div className="card-hover bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 md:p-8">
               <div className="mb-1">
                 <p className="text-center text-sm text-gray-500 mb-3">{t('login.chooseAccount')}</p>
-                <div className="grid grid-cols-3 gap-2 bg-gray-100 p-1 rounded-xl">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-gray-100 p-1 rounded-xl">
                   {roles.map((role) => {
                     const RoleIcon = role.icon;
                     const isActive = selectedRole === role.key;
@@ -155,7 +155,7 @@ export default function LoginPage() {
               </div>
               <div className="flex items-center gap-3 my-5">
                 <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-blue-600 font-bold text-sm md:text-base whitespace-nowrap">{currentRole.title}</span>
+                <span className="text-blue-600 font-bold text-sm md:text-base text-center min-w-0">{currentRole.title}</span>
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -251,7 +251,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-        <PublicFooter />
+        <PublicFooter variant="compact" />
       </div>
     </div>
   );

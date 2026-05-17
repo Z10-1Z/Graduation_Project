@@ -84,10 +84,10 @@ function AIAssistantPageInner() {
     [t]
   );
 
-  const historyItems = useMemo(
-    () => t('ai.patientPage.history', { returnObjects: true }) || [],
-    [t]
-  );
+  const historyItems = useMemo(() => {
+    const raw = t('ai.patientPage.history', { returnObjects: true });
+    return Array.isArray(raw) ? raw : [];
+  }, [t]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

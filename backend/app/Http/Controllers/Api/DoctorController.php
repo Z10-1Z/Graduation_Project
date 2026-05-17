@@ -119,7 +119,7 @@ class DoctorController extends Controller
     public function allSchedules(Request $request): JsonResponse
     {
         $appointments = Appointment::where('doctor_id', $request->user()->id)
-            ->with('patient:id,name,email,date_of_birth,governorate,area,avatar')
+            ->with('patient:id,name,email,phone,date_of_birth,governorate,area,avatar')
             ->latest()
             ->get();
 

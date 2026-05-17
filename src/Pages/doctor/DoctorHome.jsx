@@ -242,7 +242,7 @@ export default function DoctorHome() {
             <p className="text-sm text-gray-500 text-start">{t('doctor.home.noNext')}</p>
           ) : (
             <div className="flex items-start gap-4 flex-wrap">
-              <div className="flex flex-col gap-2 flex-1 text-start min-w-48">
+              <div className="flex flex-col gap-2 flex-1 text-start min-w-0 sm:min-w-48">
                 <span className="text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-600 w-fit">
                   {nextUp.type}
                 </span>

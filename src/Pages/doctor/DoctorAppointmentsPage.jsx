@@ -6,7 +6,8 @@ import { translateAppointmentStatus } from '../../utils/i18nStatus';
 import axiosInstance from '../../api/axiosInstance';
 import { DOCTOR, DOCTOR_API } from '../../api/endpoints';
 import { getApiErrorMessage } from '../../utils/apiError';
-import { getApiOrigin } from '../../utils/apiOrigin';
+import AppointmentDetailsModal from '../../components/AppointmentDetailsModal';
+import { normalizeDoctorScheduleItem } from '../../utils/appointmentDetail';
 
 function localDateInputValue(d = new Date()) {
   const y = d.getFullYear();
@@ -29,25 +30,17 @@ export default function DoctorAppointmentsPage() {
   const [formDate, setFormDate] = useState(() => localDateInputValue());
   const [formTime, setFormTime] = useState('09:00');
   const [formNotes, setFormNotes] = useState('');
+  const [detailsAppointment, setDetailsAppointment] = useState(null);
 
-  const apiOrigin = getApiOrigin();
   const placeholderApptImg = 'https://randomuser.me/api/portraits/lego/1.jpg';
 
   const loadSchedules = async () => {
     setLoading(true);
     try {
       const res = await axiosInstance.get(DOCTOR.SCHEDULE);
-      const normalized = (res.data?.schedules || []).map((item) => ({
-        id: item.id,
-        name: item.patient?.name || 'Unknown patient',
-        pid: `#${item.patient_id}`,
-        time: item.appointment_time || '--:--',
-        endTime: item.appointment_time || '--:--',
-        type: item.notes || t('doctor.appointments.tableSubtitle'),
-        status: item.status || 'pending',
-        done: item.status === 'completed',
-        img: item.patient?.avatar ? `${apiOrigin}/storage/${item.patient.avatar}` : placeholderApptImg,
-      }));
+      const normalized = (res.data?.schedules || []).map((item) =>
+        normalizeDoctorScheduleItem(item, placeholderApptImg, t('doctor.appointments.tableSubtitle'))
+      );
       setAppointments(normalized);
     } catch (err) {
       toast.error(getApiErrorMessage(err, t('authErrors.default')));
@@ -218,7 +211,9 @@ export default function DoctorAppointmentsPage() {
                 <div className="flex items-center gap-2 ms-auto shrink-0 flex-wrap">
                   <button
                     type="button"
+                    onClick={() => setDetailsAppointment(apt)}
                     className="w-8 h-8 flex items-center justify-center border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-gray-400"
+                    aria-label={t('patient.appointments.details')}
                   >
                     <Eye size={14} />
                   </button>
@@ -262,13 +257,14 @@ export default function DoctorAppointmentsPage() {
                       <p className="font-bold text-gray-800 text-sm">{apt.name}</p>
                       <img src={apt.img} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />
                     </div>
-                    <p className="text-xs text-gray-400 flex items-center justify-start gap-1 mt-0.5">
+                    <p className="text-xs text-gray-400 flex items-center justify-start gap-1 mt-0.5 flex-wrap">
                       <span>{apt.pid}</span>
                       <span>•</span>
-                      <Clock size={11} />
-                      <span>
-                        {apt.time} - {apt.endTime} ص
-                      </span>
+                      <Calendar size={11} className="shrink-0" />
+                      <span>{apt.date}</span>
+                      <span>•</span>
+                      <Clock size={11} className="shrink-0" />
+                      <span>{apt.time}</span>
                     </p>
                   </div>
                 </div>
@@ -377,6 +373,14 @@ export default function DoctorAppointmentsPage() {
             </div>
           </div>
         </div>
+      ) : null}
+
+      {detailsAppointment ? (
+        <AppointmentDetailsModal
+          appointment={detailsAppointment}
+          variant="doctor"
+          onClose={() => setDetailsAppointment(null)}
+        />
       ) : null}
     </div>
   );

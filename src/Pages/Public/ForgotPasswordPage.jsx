@@ -124,7 +124,7 @@ export default function ForgotPasswordPage() {
   const BackArrow = isLtr ? ArrowLeft : ArrowRight;
 
   return (
-    <div className="relative z-10 min-h-screen bg-transparent flex flex-col" style={{ fontFamily: 'Cairo, sans-serif' }}>
+    <div className="page-viewport min-h-screen bg-transparent flex flex-col" style={{ fontFamily: 'Cairo, sans-serif' }}>
       <MedicalBackground />
       <PublicNavbar />
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
@@ -372,7 +372,7 @@ export default function ForgotPasswordPage() {
           )}
         </div>
       </div>
-      <PublicFooter />
+      <PublicFooter variant="compact" />
     </div>
   );
 }

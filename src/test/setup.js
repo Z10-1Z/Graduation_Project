@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom/vitest';
 import { beforeEach, vi } from 'vitest';
-import i18n from '../i18n';
+import i18n, { ensureLocaleLoaded, i18nReady } from '../i18n';
+
+beforeAll(async () => {
+  await i18nReady;
+});
 
 if (typeof Element !== 'undefined') {
   // jsdom: scrollIntoView may be undefined; some components call it in useLayoutEffect
@@ -27,5 +31,6 @@ beforeEach(async () => {
   } catch {
     /* ignore */
   }
+  await ensureLocaleLoaded('ar');
   await i18n.changeLanguage('ar');
 });

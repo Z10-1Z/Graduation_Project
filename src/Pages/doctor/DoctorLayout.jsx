@@ -143,8 +143,8 @@ export default function DoctorLayout() {
         </div>
       )}
 
-      <main className={`flex-1 min-h-screen relative z-10 ${sidebarMainMarginClass}`}>
-        <div className="layout-mobile-topbar bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 md:px-6 py-3 flex items-center justify-between sticky top-0 z-30">
+      <main className={`flex-1 min-h-screen relative z-10 min-w-0 overflow-x-clip ${sidebarMainMarginClass}`}>
+        <div className="layout-mobile-topbar md:hidden bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-3">
             <NotificationBell />
             <div className="hidden md:flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2 min-w-64">

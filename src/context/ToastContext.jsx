@@ -21,7 +21,7 @@ function ToastItem({ toast, onRemove }) {
   const Icon = s.icon;
 
   return (
-    <div className={`flex items-start gap-3 p-4 rounded-2xl border shadow-lg ${s.bg} animate-slide-in min-w-72 max-w-sm`}>
+    <div className={`flex items-start gap-3 p-4 rounded-2xl border shadow-lg ${s.bg} animate-slide-in w-[min(20rem,calc(100vw-2rem))] max-w-sm min-w-0`}>
       <button onClick={() => onRemove(toast.id)} className="text-gray-400 hover:text-gray-600 flex-shrink-0 mt-0.5">
         <X size={15} />
       </button>
@@ -60,7 +60,7 @@ export function ToastProvider({ children }) {
     <ToastContext.Provider value={toast}>
       {children}
       {/* Toast Container */}
-      <div className="fixed top-4 end-4 z-[9999] flex flex-col gap-2">
+      <div className="fixed top-4 end-4 z-[9999] flex flex-col gap-2 w-[min(100%,calc(100vw-2rem))]">
         {toasts.map(t => (
           <ToastItem key={t.id} toast={t} onRemove={removeToast} />
         ))}

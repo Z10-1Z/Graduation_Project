@@ -41,9 +41,9 @@ export default function AboutPage() {
   const Chevron = isLtr ? ChevronRight : ChevronLeft;
 
   return (
-    <div style={{ fontFamily: 'Cairo, sans-serif' }}>
+    <div className="min-w-0 w-full overflow-x-clip" style={{ fontFamily: 'Cairo, sans-serif' }}>
       <MedicalBackground />
-      <div className="relative z-10">
+      <div className="page-viewport">
         <PublicNavbar active="about" />
 
         <section className="py-12 md:py-16 px-4 md:px-8">
@@ -76,7 +76,7 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="flex-1 flex justify-center">
-              <div className="group relative w-72 h-72 md:w-96 md:h-96 rounded-3xl overflow-hidden shadow-xl transition-all duration-500 hover:shadow-blue-500/20 hover:shadow-2xl hover:scale-[1.02] motion-reduce:hover:scale-100">
+              <div className="group relative w-full max-w-sm aspect-square sm:max-w-md md:max-w-none md:w-96 md:h-96 rounded-3xl overflow-hidden shadow-xl transition-all duration-500 hover:shadow-blue-500/20 hover:shadow-2xl hover:scale-[1.02] motion-reduce:hover:scale-100">
                 <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?w=600&q=80" alt={t('public.about.imgTeam')} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 motion-reduce:group-hover:scale-100" />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 to-transparent" />
                 <div className="absolute bottom-4 start-4 end-4 text-white text-center">
@@ -131,9 +131,9 @@ export default function AboutPage() {
                 {timeline.map(({ year, title, desc }, i) => (
                   <div
                     key={year}
-                    className={`flex items-start gap-4 ${i % 2 === 0 ? 'md:flex-row-reverse' : 'md:flex-row'} flex-row`}
+                    className={`flex items-start gap-4 min-w-0 ${i % 2 === 0 ? 'md:flex-row-reverse' : 'md:flex-row'} flex-row`}
                   >
-                    <div className="flex-1 md:w-1/2">
+                    <div className="flex-1 min-w-0 md:w-1/2">
                       <div className="bg-gray-50 rounded-2xl p-4 shadow-sm text-start">
                         <span className="text-blue-600 font-extrabold text-lg">{year}</span>
                         <h3 className="font-bold text-gray-800 mt-1">{title}</h3>

@@ -31,9 +31,9 @@ export default function ContactPage() {
   ];
 
   return (
-    <div style={{ fontFamily: 'Cairo, sans-serif' }}>
+    <div className="min-w-0 w-full overflow-x-clip" style={{ fontFamily: 'Cairo, sans-serif' }}>
       <MedicalBackground />
-      <div className="relative z-10">
+      <div className="page-viewport">
         <PublicNavbar active="contact" />
 
         <section className="overflow-hidden">

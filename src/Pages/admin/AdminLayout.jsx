@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, Suspense } from 'react';
 import MedicalBackground from '../../components/MedicalBackground';
 import FloatingAI from '../../components/FloatingAI';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../context/ToastContext';
@@ -128,7 +128,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="relative z-10 min-h-screen flex">
+    <div className="relative z-10 min-h-screen flex min-w-0 w-full max-w-full overflow-x-clip">
       <MedicalBackground />
       <aside className={`layout-aside-surface hidden md:flex w-64 bg-white shadow-md flex-col py-6 px-4 fixed top-0 h-full z-40 border-e border-gray-100 ${sidebarFixedClass}`}>
         <SidebarContent user={user} onLogout={handleLogout} navItems={navItems} t={t} />
@@ -143,18 +143,18 @@ export default function AdminLayout() {
         </div>
       )}
 
-      <main className={`relative z-10 isolate min-h-screen flex-1 w-full bg-slate-50/95 ${sidebarMainMarginClass}`}>
-        <div className="layout-mobile-topbar md:hidden bg-white/90 backdrop-blur-md shadow-sm px-4 py-3 flex items-center justify-between sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <NotificationBell />
-          </div>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher />
-            <BrandLogo className="h-20 w-20 object-contain" />
-          </div>
-          <button type="button" onClick={() => setSidebarOpen(true)} className="nav-icon-toggle text-gray-600" aria-label={t('common.openMenu')}>
+      <main className={`relative z-10 isolate min-h-screen flex-1 w-full min-w-0 overflow-x-clip bg-slate-50/95 ${sidebarMainMarginClass}`}>
+        <div className="layout-mobile-topbar md:hidden bg-white/90 backdrop-blur-md shadow-sm px-4 py-3 flex items-center justify-between gap-2 sticky top-0 z-30">
+          <button type="button" onClick={() => setSidebarOpen(true)} className="nav-icon-toggle text-gray-600 shrink-0" aria-label={t('common.openMenu')}>
             <Menu size={24} />
           </button>
+          <Link to="/admin" className="shrink-0">
+            <BrandLogo className="h-10 w-10 object-contain" />
+          </Link>
+          <div className="flex items-center gap-2 shrink-0">
+            <NotificationBell />
+            <LanguageSwitcher />
+          </div>
         </div>
         <Suspense fallback={<AdminOutletFallback />}>
           <Outlet />

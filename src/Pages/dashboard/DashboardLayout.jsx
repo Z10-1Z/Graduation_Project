@@ -27,7 +27,7 @@ function SidebarContent({ user, onClose, onLogout, navItems, t }) {
     <>
       <div className="flex items-center justify-between gap-2 mb-6 px-2">
         <div className="flex items-center gap-2 min-w-0">
-          <BrandLogo className="h-20 w-20 object-contain shrink-0" />
+          <BrandLogo className="h-12 w-12 sm:h-14 sm:w-14 object-contain shrink-0" />
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <LanguageSwitcher />
@@ -53,8 +53,8 @@ function SidebarContent({ user, onClose, onLogout, navItems, t }) {
                 `sidebar-nav-item ${isActive ? 'sidebar-nav-item-active' : 'sidebar-nav-item-idle'}`
               }
             >
-              <NavIcon size={18} />
-              {item.label}
+              <NavIcon size={18} className="shrink-0" />
+              <span className="truncate">{item.label}</span>
             </NavLink>
           );
         })}
@@ -131,7 +131,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="relative z-10 min-h-screen flex">
+    <div className="relative z-10 min-h-screen flex min-w-0 w-full max-w-full overflow-x-clip">
       <MedicalBackground />
 
       <aside className={`layout-aside-surface hidden md:flex w-64 bg-white/85 backdrop-blur-md shadow-md flex-col py-6 px-4 fixed top-0 h-full z-40 ${sidebarFixedClass}`}>
@@ -153,10 +153,10 @@ export default function DashboardLayout() {
         </div>
       )}
 
-      <main className={`relative z-[5] flex min-h-screen flex-1 flex-col bg-white/65 backdrop-blur-md ${sidebarMainMarginClass}`}>
+      <main className={`relative z-[5] flex min-h-screen flex-1 flex-col min-w-0 overflow-x-clip bg-white/65 backdrop-blur-md ${sidebarMainMarginClass}`}>
         <div className="layout-mobile-topbar md:hidden bg-white/90 backdrop-blur-md shadow-sm px-4 py-3 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-2">
-            <BrandLogo className="h-20 w-20 object-contain" />
+            <BrandLogo className="h-11 w-11 object-contain" />
           </div>
           <div className="flex items-center gap-2">
             <LanguageSwitcher />

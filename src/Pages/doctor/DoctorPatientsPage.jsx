@@ -172,6 +172,22 @@ function ViewPatientModal({ patient, onClose, onCareStatusChange }) {
           </div>
         </div>
         <dl className="space-y-3 text-sm">
+          {patient.email ? (
+            <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+              <dt className="text-xs font-semibold text-gray-500">{t('doctor.patients.fieldEmail')}</dt>
+              <dd className="text-gray-800 font-medium text-end break-all">{patient.email}</dd>
+            </div>
+          ) : null}
+          {patient.phone ? (
+            <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+              <dt className="text-xs font-semibold text-gray-500">{t('doctor.patients.fieldPhone')}</dt>
+              <dd className="text-gray-800 font-medium">{patient.phone}</dd>
+            </div>
+          ) : null}
+          <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
+            <dt className="text-xs font-semibold text-gray-500">{t('doctor.patients.appointmentsCount')}</dt>
+            <dd className="text-gray-800 font-medium">{patient.appointmentsCount ?? 0}</dd>
+          </div>
           <div className="flex justify-between gap-4 border-b border-gray-100 pb-2">
             <dt className="text-xs font-semibold text-gray-500">{t('doctor.patients.colLastVisit')}</dt>
             <dd className="text-gray-800 font-medium">{patient.lastVisit}</dd>
@@ -239,6 +255,9 @@ export default function DoctorPatientsPage() {
         return {
           id: p.id,
           name: p.name,
+          email: p.email || '',
+          phone: p.phone || '',
+          appointmentsCount: p.appointments_count ?? 0,
           pid: `#MD-${p.id}`,
           age,
           gender:
@@ -314,7 +333,7 @@ export default function DoctorPatientsPage() {
             </button>
           ))}
         </div>
-        <div className="relative flex-1 min-w-48">
+        <div className="relative flex-1 min-w-0 sm:min-w-48">
           <input
             type="text"
             value={search}

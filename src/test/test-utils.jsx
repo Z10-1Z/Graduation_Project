@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { I18nextProvider } from 'react-i18next';
 import { MemoryRouter } from 'react-router-dom';
-import i18n from '../i18n';
+import i18n, { i18nReady } from '../i18n';
 import { store } from '../app/store';
 import { ToastProvider } from '../context/ToastContext';
 import authReducer from '../features/auth/authSlice';

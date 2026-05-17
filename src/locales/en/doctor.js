@@ -81,6 +81,7 @@ export default {
       colAge: 'Age',
       colName: 'Patient',
       colCareStatus: 'Care status',
+      appointmentsCount: 'Appointments',
       openFile: 'Open chart',
       viewTitle: 'Patient file',
       careStatusUpdated: 'Care status updated',

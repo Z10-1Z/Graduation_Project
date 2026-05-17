@@ -46,7 +46,10 @@ export default function DoctorProfilePage() {
   const toast = useToast();
   const fileInputRef = useRef(null);
 
-  const specialties = useMemo(() => t('doctor.profile.specialties', { returnObjects: true }) || [], [t]);
+  const specialties = useMemo(() => {
+    const raw = t('doctor.profile.specialties', { returnObjects: true });
+    return Array.isArray(raw) ? raw : [];
+  }, [t]);
   const governorates = useMemo(() => t('doctor.profile.governorates', { returnObjects: true }) || [], [t]);
   const weekDays = useMemo(() => t('doctor.profile.weekDays', { returnObjects: true }) || [], [t]);
 

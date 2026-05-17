@@ -7,6 +7,7 @@ import axiosInstance from '../../api/axiosInstance';
 import { APPOINTMENTS } from '../../api/endpoints';
 import { cancelAppointment, clearError, clearInfo, fetchAppointments } from '../../features/appointments/appointmentsSlice';
 import AsyncState from '../../components/AsyncState';
+import AppointmentDetailsModal from '../../components/AppointmentDetailsModal';
 import { translateAppointmentStatus } from '../../utils/i18nStatus';
 
 function CancelModal({ appointment, onConfirm, onCancel, loading, t }) {
@@ -47,65 +48,20 @@ function CancelModal({ appointment, onConfirm, onCancel, loading, t }) {
   );
 }
 
-function DetailsModal({ appointment, onClose, t }) {
-  if (!appointment) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black bg-opacity-40" onClick={onClose} />
-      <div className="relative bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-6 w-full max-w-md z-10">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-gray-800 text-lg">{t('patient.appointments.details')}</h3>
-          <button type="button" onClick={onClose} className="text-gray-400">
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="flex items-center gap-3 mb-4">
-          <img src={appointment.img} alt={appointment.doctorName} className="w-12 h-12 rounded-xl object-cover" />
-          <div className="text-start">
-            <p className="font-bold text-gray-800">{appointment.doctorName}</p>
-            <p className="text-blue-500 text-xs mt-0.5">{appointment.specialty}</p>
-          </div>
-        </div>
-
-        <div className="space-y-2 text-sm text-gray-600">
-          <div className="flex items-center gap-2">
-            <StatusBadge status={appointment.status} t={t} />
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar size={14} className="text-blue-500" />
-            <span>{appointment.date}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock size={14} className="text-blue-500" />
-            <span>{appointment.time}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin size={14} className="text-blue-500" />
-            <span>{appointment.location}</span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-full mt-5 border border-gray-200 text-gray-600 font-semibold py-2.5 rounded-xl text-sm hover:bg-gray-50 transition-colors"
-        >
-          {t('common.close')}
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function StatusBadge({ status, t }) {
   const label = translateAppointmentStatus(status, t);
+  const key = String(status || '').toLowerCase();
   const styles = {
+    confirmed: 'bg-blue-100 text-blue-600',
     مؤكد: 'bg-blue-100 text-blue-600',
+    completed: 'bg-green-100 text-green-600',
     مكتمل: 'bg-green-100 text-green-600',
+    cancelled: 'bg-red-100 text-red-500',
     ملغي: 'bg-red-100 text-red-500',
+    pending: 'bg-yellow-100 text-yellow-600',
+    'قيد الانتظار': 'bg-yellow-100 text-yellow-600',
   };
-  return <span className={`text-xs font-semibold px-3 py-1 rounded-full ${styles[status] || 'bg-gray-100 text-gray-500'}`}>{label}</span>;
+  return <span className={`text-xs font-semibold px-3 py-1 rounded-full ${styles[key] || styles[status] || 'bg-gray-100 text-gray-500'}`}>{label}</span>;
 }
 
 export default function AppointmentsPage() {
@@ -267,8 +223,15 @@ export default function AppointmentsPage() {
           <div className="divide-y divide-gray-50">
             {previous.map((apt) => (
               <div key={apt.id} className="px-5 py-4">
-                <div className="md:hidden flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
+                <div className="md:hidden flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setDetailsModal(apt)}
+                      className="text-gray-700 text-xs font-semibold border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      {t('patient.appointments.details')}
+                    </button>
                     <button type="button" className="text-blue-600 text-xs font-semibold border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-1">
                       <RefreshCw size={12} />
                       {t('patient.appointments.rebook')}
@@ -295,7 +258,14 @@ export default function AppointmentsPage() {
 
                 <div className="hidden md:grid grid-cols-5 gap-4 items-center">
                   <div className="flex justify-center">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap justify-center">
+                      <button
+                        type="button"
+                        onClick={() => setDetailsModal(apt)}
+                        className="text-gray-700 text-xs font-semibold border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        {t('patient.appointments.details')}
+                      </button>
                       <button type="button" className="text-blue-600 text-xs font-semibold border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-1">
                         <RefreshCw size={12} />
                         {t('patient.appointments.rebook')}
@@ -330,13 +300,13 @@ export default function AppointmentsPage() {
               <div className="flex items-center gap-1">
                 <CheckCircle size={13} className="text-green-500" />
                 <span>
-                  {previous.filter((a) => a.status === 'مكتمل').length} {t('patient.appointments.summaryDone')}
+                  {previous.filter((a) => a.status === 'completed' || a.status === 'مكتمل').length} {t('patient.appointments.summaryDone')}
                 </span>
               </div>
               <div className="flex items-center gap-1">
                 <X size={13} className="text-red-400" />
                 <span>
-                  {previous.filter((a) => a.status === 'ملغي').length} {t('patient.appointments.summaryCancelled')}
+                  {previous.filter((a) => a.status === 'cancelled' || a.status === 'ملغي').length} {t('patient.appointments.summaryCancelled')}
                 </span>
               </div>
             </div>
@@ -350,7 +320,13 @@ export default function AppointmentsPage() {
       {cancelModal && (
         <CancelModal appointment={cancelModal} onConfirm={handleCancel} onCancel={() => setCancelModal(null)} loading={cancelLoading} t={t} />
       )}
-      {detailsModal && <DetailsModal appointment={detailsModal} onClose={() => setDetailsModal(null)} t={t} />}
+      {detailsModal && (
+        <AppointmentDetailsModal
+          appointment={detailsModal}
+          variant="patient"
+          onClose={() => setDetailsModal(null)}
+        />
+      )}
     </div>
   );
 }

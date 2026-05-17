@@ -228,7 +228,7 @@ export default function AdminStaffPage() {
         </div>
       </div>
 
-      <div className="relative flex-1 min-w-48 max-w-md">
+      <div className="relative flex-1 min-w-0 sm:min-w-48 max-w-md">
         <input
           type="text"
           value={search}

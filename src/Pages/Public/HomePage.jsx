@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { PUBLIC_DOCTORS } from '../../data/publicDoctors';
 import { getDoctorProfiles, getSpecialtyOptionsFromDoctors, matchesSpecialty, SPECIALTY_ALL_AR } from '../../utils/specialtyFilter';
+import { centerDisplayLabel, mapSpecialtyOptions, specialtyDisplayLabel } from '../../utils/specialtyI18n';
+import { useCardsPerSlide } from '../../hooks/useMediaQuery';
 
 /** Survives React Strict Mode remounts so sections do not flip back to hidden. */
 const sectionRevealDone = new Set();
@@ -65,7 +67,10 @@ function Hero() {
   const [apptDate, setApptDate] = useState('');
 
   const doctorProfiles = useMemo(() => getDoctorProfiles(PUBLIC_DOCTORS), []);
-  const specialtyOptions = useMemo(() => getSpecialtyOptionsFromDoctors(doctorProfiles), [doctorProfiles]);
+  const specialtyOptions = useMemo(
+    () => mapSpecialtyOptions(getSpecialtyOptionsFromDoctors(doctorProfiles), t),
+    [doctorProfiles, t, i18n.language]
+  );
 
   const doctorsForSpecialty = useMemo(
     () => doctorProfiles.filter((d) => matchesSpecialty(d.specialty, specialty || SPECIALTY_ALL_AR)),
@@ -103,7 +108,7 @@ function Hero() {
 
   return (
     <section
-      className="relative isolate overflow-hidden min-h-[min(88vh,820px)] flex flex-col"
+      className="relative isolate overflow-hidden min-h-[min(72vh,820px)] sm:min-h-[min(88vh,820px)] flex flex-col"
       style={{ fontFamily: 'Cairo, system-ui, sans-serif' }}
     >
       <div
@@ -125,7 +130,7 @@ function Hero() {
         <div className="mt-8 md:mt-10 w-full max-w-5xl mx-auto md:mx-0 pb-2">
           <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-4 sm:p-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:gap-3">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1 min-w-0">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 text-slate-800 mb-1.5">
                     <Stethoscope className="w-5 h-5 text-blue-500 shrink-0" strokeWidth={2} />
@@ -140,8 +145,8 @@ function Hero() {
                     >
                       <option value="">{t('home.hero.booking.phSpecialty')}</option>
                       {specialtyOptions.map((opt) => (
-                        <option key={opt} value={opt}>
-                          {opt}
+                        <option key={opt.value} value={opt.value === SPECIALTY_ALL_AR ? '' : opt.value}>
+                          {opt.label}
                         </option>
                       ))}
                     </select>
@@ -150,19 +155,19 @@ function Hero() {
                       aria-hidden
                     />
                   </div>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {specialtyOptions.slice(0, 8).map((s) => (
+                  <div className="chip-scroll mt-2 flex-nowrap">
+                    {specialtyOptions.slice(0, 8).map((opt) => (
                       <button
-                        key={`hero-chip-${s}`}
+                        key={`hero-chip-${opt.value}`}
                         type="button"
-                        onClick={() => setSpecialty(s === SPECIALTY_ALL_AR ? '' : s)}
-                        className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-colors ${
-                          (specialty || SPECIALTY_ALL_AR) === s
+                        onClick={() => setSpecialty(opt.value === SPECIALTY_ALL_AR ? '' : opt.value)}
+                        className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-colors ${
+                          (specialty || SPECIALTY_ALL_AR) === opt.value
                             ? 'bg-blue-600 border-blue-600 text-white'
                             : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-600'
                         }`}
                       >
-                        {s}
+                        {opt.label}
                       </button>
                     ))}
                   </div>
@@ -178,8 +183,8 @@ function Hero() {
                     className={`${fieldClass} mb-2`}
                     value={doctorSearch}
                     onChange={(e) => setDoctorSearch(e.target.value)}
-                    placeholder={t('admin.doctors.searchPh')}
-                    aria-label={t('admin.doctors.searchPh')}
+                    placeholder={t('home.hero.booking.searchDoctor')}
+                    aria-label={t('home.hero.booking.searchDoctor')}
                   />
                   <div className="relative">
                     <select
@@ -191,7 +196,8 @@ function Hero() {
                       <option value="">{t('home.hero.booking.phDoctor')}</option>
                       {doctorsForSearch.map((d) => (
                         <option key={d.id} value={String(d.id)}>
-                          {d.name} — {d.specialty}{d.center ? ` — ${d.center}` : ''}
+                          {d.name} — {specialtyDisplayLabel(d.specialty, t)}
+                          {d.center ? ` — ${centerDisplayLabel(d.center, t)}` : ''}
                         </option>
                       ))}
                     </select>
@@ -221,7 +227,7 @@ function Hero() {
 
               <Link
                 to={bookingTo}
-                className="shrink-0 w-full lg:w-auto text-center transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-blue-500/30 motion-reduce:hover:scale-100 bg-blue-600 text-white font-bold py-3 px-8 rounded-xl text-sm hover:bg-blue-700 whitespace-nowrap"
+                className="shrink-0 w-full lg:w-auto text-center transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-blue-500/30 motion-reduce:hover:scale-100 bg-blue-600 text-white font-bold py-3 px-6 sm:px-8 rounded-xl text-sm hover:bg-blue-700 max-sm:whitespace-normal sm:whitespace-nowrap"
               >
                 {t('home.hero.booking.cta')}
               </Link>
@@ -246,7 +252,7 @@ function Services() {
   }, [t]);
   return (
     <section id="services" ref={sectionRef} className="py-10 md:py-12 px-4 md:px-8">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-5">
+      <div className="page-shell grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {services.map((service, i) => {
           const ServiceIcon = service.icon;
           return (
@@ -278,15 +284,19 @@ function Doctors() {
   const [paused, setPaused] = useState(false);
   const touchStartX = useRef(0);
   const touchDeltaX = useRef(0);
-  const cardsPerSlide = 3;
+  const cardsPerSlide = useCardsPerSlide();
   const doctorSlides = useMemo(() => {
     const chunks = [];
     for (let i = 0; i < doctors.length; i += cardsPerSlide) {
       chunks.push(doctors.slice(i, i + cardsPerSlide));
     }
     return chunks;
-  }, []);
+  }, [cardsPerSlide]);
   const totalSlides = doctorSlides.length;
+
+  useEffect(() => {
+    setActiveSlide(0);
+  }, [cardsPerSlide]);
 
   const goNext = () => {
     setActiveSlide((s) => (s + 1) % totalSlides);
@@ -348,16 +358,16 @@ function Doctors() {
             }
           }}
         >
-          <div className="overflow-hidden rounded-[26px]">
+          <div className="overflow-hidden rounded-[26px]" dir="ltr">
             <div
               className="flex transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
-              style={{ transform: `translateX(${isLtr ? '-' : ''}${activeSlide * 100}%)` }}
+              style={{ transform: `translateX(-${activeSlide * 100}%)` }}
             >
               {doctorSlides.map((slide, slideIdx) => (
-                <div key={`slide-${slideIdx}`} className="w-full shrink-0 px-1">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div key={`slide-${slideIdx}`} className="w-full min-w-0 shrink-0">
+                  <div className={`grid gap-3 ${cardsPerSlide === 1 ? 'grid-cols-1' : cardsPerSlide === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                     {slide.map((doc) => (
-                      <div key={doc.id} className="group bg-white/90 border border-gray-200 rounded-[24px] overflow-hidden shadow-sm flex flex-col cursor-default transition-all duration-500 hover:shadow-xl hover:shadow-cyan-100/80">
+                      <div key={doc.id} className="group min-w-0 bg-white/90 border border-gray-200 rounded-[24px] overflow-hidden shadow-sm flex flex-col cursor-default transition-all duration-500 hover:shadow-xl hover:shadow-cyan-100/80">
                         <div className="relative mx-2.5 mt-2.5 rounded-[20px] bg-cyan-50 overflow-hidden aspect-[5/4]">
                           <img
                             src={doc.img}
@@ -396,7 +406,7 @@ function Doctors() {
           <button
             type="button"
             onClick={isLtr ? goPrev : goNext}
-            className="absolute top-1/2 -translate-y-1/2 start-2 md:start-3 w-9 h-9 rounded-full bg-white/95 border border-gray-200 text-gray-600 flex items-center justify-center shadow-sm hover:bg-white hover:text-blue-600 transition-colors"
+            className="hidden sm:flex absolute top-1/2 -translate-y-1/2 start-2 md:start-3 w-9 h-9 rounded-full bg-white/95 border border-gray-200 text-gray-600 items-center justify-center shadow-sm hover:bg-white hover:text-blue-600 transition-colors"
             aria-label="previous doctor"
           >
             <ChevronLeft size={16} />
@@ -404,7 +414,7 @@ function Doctors() {
           <button
             type="button"
             onClick={isLtr ? goNext : goPrev}
-            className="absolute top-1/2 -translate-y-1/2 end-2 md:end-3 w-9 h-9 rounded-full bg-white/95 border border-gray-200 text-gray-600 flex items-center justify-center shadow-sm hover:bg-white hover:text-blue-600 transition-colors"
+            className="hidden sm:flex absolute top-1/2 -translate-y-1/2 end-2 md:end-3 w-9 h-9 rounded-full bg-white/95 border border-gray-200 text-gray-600 items-center justify-center shadow-sm hover:bg-white hover:text-blue-600 transition-colors"
             aria-label="next doctor"
           >
             <ChevronRight size={16} />
@@ -474,9 +484,9 @@ function Specialties() {
 
 export default function HomePage() {
   return (
-    <div style={{ fontFamily: 'Cairo, sans-serif' }}>
+    <div className="min-w-0 w-full overflow-x-clip" style={{ fontFamily: 'Cairo, sans-serif' }}>
       <MedicalBackground />
-      <div className="relative z-10">
+      <div className="page-viewport">
         <PublicNavbar active="home" />
         <Hero />
         <Services />

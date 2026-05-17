@@ -2,26 +2,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosInstance from '../../api/axiosInstance';
 import { APPOINTMENTS } from '../../api/endpoints';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { normalizePatientAppointment } from '../../utils/appointmentDetail';
 
 function normalizeAppointment(a) {
-  return {
-    id: a.id,
-    status: a.status || 'pending',
-    date: a.appointment_date || a.date || '-',
-    time: a.appointment_time || a.time || '-',
-    doctorName: a.doctor?.name || a.doctorName || '-',
-    specialty: a.doctor?.specialty || a.specialty || '-',
-    specialty2: a.doctor?.specialty || a.specialty2 || a.specialty || '-',
-    location: a.doctor?.area || a.location || '-',
-    img: a.doctor?.avatar_url || a.img || 'https://randomuser.me/api/portraits/men/55.jpg',
-    canRate: Boolean(a.can_rate),
-    rating: a.rating
-      ? {
-          value: Number(a.rating.rating || 0),
-          comment: a.rating.comment || '',
-        }
-      : null,
-  };
+  return normalizePatientAppointment(a);
 }
 
 function splitAppointments(rows) {

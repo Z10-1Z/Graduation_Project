@@ -81,6 +81,7 @@ export default {
       colAge: 'العمر',
       colName: 'اسم المريض',
       colCareStatus: 'حالة المتابعة',
+      appointmentsCount: 'عدد المواعيد',
       openFile: 'فتح الملف',
       viewTitle: 'ملف المريض',
       careStatusUpdated: 'تم تحديث حالة المتابعة',

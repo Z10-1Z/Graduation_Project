@@ -351,7 +351,7 @@ export default function AdminDoctorsPage() {
             <option key={s} value={s}>{s}</option>
           ))}
         </select>
-        <div className="relative flex-1 min-w-48">
+        <div className="relative flex-1 min-w-0 sm:min-w-48">
           <input
             type="text"
             value={search}

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../context/ToastContext';
@@ -9,6 +9,7 @@ import { BENI_SUEF_GOV_AR, GOVERNORATES_AR, AREAS_BY_GOV_AR, BENI_SUEF_MARKAZ_AR
 import { getApiErrorMessage } from '../../utils/apiError';
 import { getApiOrigin } from '../../utils/apiOrigin';
 import { getSpecialtyOptionsFromDoctors, matchesSpecialty, SPECIALTY_ALL_AR } from '../../utils/specialtyFilter';
+import { mapSpecialtyOptions } from '../../utils/specialtyI18n';
 
 const GOVERNORATES = GOVERNORATES_AR;
 const AREAS = AREAS_BY_GOV_AR;
@@ -111,7 +112,7 @@ function ConfirmModal({ doctor, slot, onClose, onConfirm, t }) {
 }
 
 export default function BookingPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const toast = useToast();
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
@@ -124,7 +125,10 @@ export default function BookingPage() {
   const [area, setArea] = useState('');
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [confirmModal, setConfirmModal] = useState(null);
-  const specialtyOptions = getSpecialtyOptionsFromDoctors(doctors);
+  const specialtyOptions = useMemo(
+    () => mapSpecialtyOptions(getSpecialtyOptionsFromDoctors(doctors), t),
+    [doctors, t, i18n.language]
+  );
 
   const apiOrigin = getApiOrigin();
 
@@ -227,8 +231,8 @@ export default function BookingPage() {
               onChange={(e) => setSpecialty(e.target.value)}
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-start focus:outline-none focus:ring-2 focus:ring-blue-500 transition appearance-none bg-white"
             >
-              {specialtyOptions.map((s) => (
-                <option key={s}>{s}</option>
+              {specialtyOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </div>
@@ -261,19 +265,19 @@ export default function BookingPage() {
             </select>
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-start gap-2 mt-4">
-          {specialtyOptions.map((s) => (
+        <div className="chip-scroll justify-start mt-4 max-w-full">
+          {specialtyOptions.map((opt) => (
             <button
-              key={`booking-chip-${s}`}
+              key={`booking-chip-${opt.value}`}
               type="button"
-              onClick={() => setSpecialty(s)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                specialty === s
+              onClick={() => setSpecialty(opt.value)}
+              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                specialty === opt.value
                   ? 'bg-blue-600 border-blue-600 text-white'
                   : 'bg-white border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600'
               }`}
             >
-              {s}
+              {opt.label}
             </button>
           ))}
         </div>

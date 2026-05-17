@@ -6,22 +6,24 @@ import PublicNavbar from '../../components/PublicNavbar';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { PUBLIC_DOCTORS } from '../../data/publicDoctors';
 import { getDoctorProfiles, getSpecialtyOptionsFromDoctors, matchesSpecialty, SPECIALTY_ALL_AR, specialtyFromLegacyIndex } from '../../utils/specialtyFilter';
+import { mapSpecialtyOptions } from '../../utils/specialtyI18n';
 
 export default function DoctorsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const doctors = getDoctorProfiles(PUBLIC_DOCTORS);
-  const specialtyOptions = getSpecialtyOptionsFromDoctors(doctors);
+  const specialtyOptions = mapSpecialtyOptions(getSpecialtyOptionsFromDoctors(doctors), t);
+  const specialtyValues = specialtyOptions.map((o) => o.value);
   const specialtyParam = searchParams.get('specialty') || '';
   const rawSpecialty = specialtyFromLegacyIndex(specialtyParam) || specialtyParam || SPECIALTY_ALL_AR;
-  const normalizedSpecialty = specialtyOptions.includes(rawSpecialty) ? rawSpecialty : SPECIALTY_ALL_AR;
+  const normalizedSpecialty = specialtyValues.includes(rawSpecialty) ? rawSpecialty : SPECIALTY_ALL_AR;
   const visibleDoctors = doctors.filter((doc) => matchesSpecialty(doc.specialty, normalizedSpecialty));
 
   return (
-    <div style={{ fontFamily: 'Cairo, sans-serif' }}>
+    <div className="min-w-0 w-full overflow-x-clip" style={{ fontFamily: 'Cairo, sans-serif' }}>
       <MedicalBackground />
-      <div className="relative z-10">
+      <div className="page-viewport">
         <PublicNavbar active="doctors" />
 
         <section className="py-10 md:py-14 px-4 md:px-8">
@@ -32,7 +34,7 @@ export default function DoctorsPage() {
               <p className="text-gray-500 text-sm mt-3 max-w-xl mx-auto md:mx-0">
                 {t('public.doctorsPage.heroLead')}
               </p>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-6">
+              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center md:justify-start gap-3 mt-6">
                 <select
                   value={normalizedSpecialty}
                   onChange={(e) => {
@@ -43,50 +45,50 @@ export default function DoctorsPage() {
                     }
                     navigate(`/doctors?specialty=${encodeURIComponent(s)}`);
                   }}
-                  className="border border-gray-200 text-gray-700 px-4 py-3 rounded-xl text-sm font-bold bg-white"
+                  className="w-full sm:w-auto sm:min-w-[12rem] border border-gray-200 text-gray-700 px-4 py-3 rounded-xl text-sm font-bold bg-white"
                 >
-                  {specialtyOptions.map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                  {specialtyOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
                 <Link
                   to="/login"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors"
+                  className="w-full sm:w-auto text-center bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors"
                 >
                   {t('public.doctorsPage.bookCta')}
                 </Link>
                 <Link
                   to="/register"
-                  className="border border-gray-200 text-gray-700 px-6 py-3 rounded-xl text-sm font-bold hover:border-blue-600 hover:text-blue-600 transition-colors"
+                  className="w-full sm:w-auto text-center border border-gray-200 text-gray-700 px-6 py-3 rounded-xl text-sm font-bold hover:border-blue-600 hover:text-blue-600 transition-colors"
                 >
                   {t('public.doctorsPage.registerCta')}
                 </Link>
               </div>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-4">
-                {specialtyOptions.map((s) => (
+              <div className="chip-scroll justify-start md:justify-start mt-4 max-w-full">
+                {specialtyOptions.map((opt) => (
                   <button
-                    key={`chip-${s}`}
+                    key={`chip-${opt.value}`}
                     type="button"
                     onClick={() => {
-                      if (!s || s === SPECIALTY_ALL_AR) {
+                      if (!opt.value || opt.value === SPECIALTY_ALL_AR) {
                         navigate('/doctors');
                         return;
                       }
-                      navigate(`/doctors?specialty=${encodeURIComponent(s)}`);
+                      navigate(`/doctors?specialty=${encodeURIComponent(opt.value)}`);
                     }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                      normalizedSpecialty === s
+                    className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                      normalizedSpecialty === opt.value
                         ? 'bg-blue-600 border-blue-600 text-white'
                         : 'bg-white border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600'
                     }`}
                   >
-                    {s}
+                    {opt.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {visibleDoctors.map((doc) => (
                 <div
                   key={doc.id}

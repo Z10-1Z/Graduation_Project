@@ -21,7 +21,7 @@ export default function NotFoundPage() {
   return (
     <div style={{ fontFamily: 'Cairo, sans-serif' }} className="relative">
       <MedicalBackground />
-      <div className="relative z-10 min-h-screen bg-transparent flex flex-col">
+      <div className="page-viewport min-h-screen bg-transparent flex flex-col">
         <div className="flex-1 flex items-center justify-center px-4 py-8">
           <div className="text-center max-w-md">
 

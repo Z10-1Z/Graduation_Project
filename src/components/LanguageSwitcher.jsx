@@ -1,8 +1,14 @@
 import { useTranslation } from 'react-i18next';
+import { ensureLocaleLoaded } from '../i18n';
 
 export default function LanguageSwitcher({ className = '' }) {
   const { i18n, t } = useTranslation();
   const lng = i18n.resolvedLanguage || i18n.language || 'ar';
+
+  const switchLanguage = async (code) => {
+    await ensureLocaleLoaded(code);
+    await i18n.changeLanguage(code);
+  };
 
   return (
     <div
@@ -12,7 +18,7 @@ export default function LanguageSwitcher({ className = '' }) {
     >
       <button
         type="button"
-        onClick={() => i18n.changeLanguage('ar')}
+        onClick={() => void switchLanguage('ar')}
         className={`rounded-lg px-2.5 py-1 transition-colors ${
           lng.startsWith('ar') ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'
         }`}
@@ -21,7 +27,7 @@ export default function LanguageSwitcher({ className = '' }) {
       </button>
       <button
         type="button"
-        onClick={() => i18n.changeLanguage('en')}
+        onClick={() => void switchLanguage('en')}
         className={`rounded-lg px-2.5 py-1 transition-colors ${
           lng.startsWith('en') ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'
         }`}

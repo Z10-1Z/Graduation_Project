@@ -142,10 +142,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={{ fontFamily: 'Cairo, sans-serif' }}>
+    <div className="min-w-0 w-full overflow-x-clip" style={{ fontFamily: 'Cairo, sans-serif' }}>
       <MedicalBackground />
       <PublicNavbar />
-      <div className="relative z-10 min-h-screen flex flex-col">
+      <div className="page-viewport min-h-screen flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center py-8 px-4 w-full">
 
         <div className="text-center mb-6">
@@ -331,7 +331,7 @@ export default function RegisterPage() {
           </div>
         </div>
         </div>
-        <PublicFooter />
+        <PublicFooter variant="compact" />
       </div>
     </div>
   );
