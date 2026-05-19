@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\MedicalRecord;
+use App\Models\MedicalRecordAttachment;
+use App\Support\DoctorPatientAccess;
 use App\Models\DoctorPatientStatus;
 use App\Models\DoctorReport;
 use App\Models\Prescription;
@@ -335,6 +338,18 @@ class DoctorController extends Controller
             return response()->json(['message' => 'Patient not found in your list.'], 404);
         }
 
+        $record = MedicalRecord::firstOrCreate(
+            ['patient_id' => $patient->id],
+            []
+        );
+
+        $attachments = MedicalRecordAttachment::query()
+            ->where('patient_id', $patient->id)
+            ->latest()
+            ->get()
+            ->map(fn (MedicalRecordAttachment $a) => $a->toApiArray())
+            ->values();
+
         return response()->json([
             'patient' => [
                 'id' => $patient->id,
@@ -345,6 +360,30 @@ class DoctorController extends Controller
                 'date_of_birth' => $patient->date_of_birth,
             ],
             'appointments' => $appointments,
+            'medical_record' => $record,
+            'attachments' => $attachments,
+        ]);
+    }
+
+    public function patientMedicalRecord(Request $request, User $patient): JsonResponse
+    {
+        DoctorPatientAccess::ensureDoctorPatient((int) $request->user()->id, $patient);
+
+        $record = MedicalRecord::firstOrCreate(
+            ['patient_id' => $patient->id],
+            []
+        );
+
+        $attachments = MedicalRecordAttachment::query()
+            ->where('patient_id', $patient->id)
+            ->latest()
+            ->get()
+            ->map(fn (MedicalRecordAttachment $a) => $a->toApiArray())
+            ->values();
+
+        return response()->json([
+            'medical_record' => $record,
+            'attachments' => $attachments,
         ]);
     }
 

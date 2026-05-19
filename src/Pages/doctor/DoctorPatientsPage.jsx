@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../context/ToastContext';
-import { Search, UserPlus, Download, Eye, X, Save } from 'lucide-react';
+import { Search, UserPlus, Download, Eye, X, Save, FileText } from 'lucide-react';
 import axiosInstance from '../../api/axiosInstance';
 import { DOCTOR_API } from '../../api/endpoints';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { getApiOrigin } from '../../utils/apiOrigin';
+import { downloadBlobFile } from '../../utils/downloadTextFile';
+import { attachmentCategoryLabel, formatAttachmentBytes } from '../../utils/medicalAttachments';
 
 const PATIENT_CARE_KEYS = ['active', 'follow_up', 'stable', 'archived'];
 
@@ -143,10 +145,11 @@ function patientCareLabel(key, t) {
   return t(`doctor.patients.careStatus.${key}`);
 }
 
-function ViewPatientModal({ patient, onClose, onCareStatusChange }) {
+function ViewPatientModal({ patient, attachments, loadingDetails, onClose, onCareStatusChange, onDownloadAttachment }) {
   const { t } = useTranslation();
   if (!patient) return null;
   const care = PATIENT_CARE_KEYS.includes(patient.careStatus) ? patient.careStatus : 'active';
+  const files = Array.isArray(attachments) ? attachments : [];
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} role="presentation" />
@@ -218,6 +221,46 @@ function ViewPatientModal({ patient, onClose, onCareStatusChange }) {
             </dd>
           </div>
         </dl>
+
+        <div className="mt-5 border-t border-gray-100 pt-4">
+          <h4 className="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+            <FileText size={15} className="text-blue-600" />
+            {t('doctor.patients.attachmentsTitle')}
+          </h4>
+          {loadingDetails ? (
+            <p className="text-xs text-gray-400">{t('common.loading')}</p>
+          ) : files.length === 0 ? (
+            <p className="text-xs text-gray-500">{t('doctor.patients.attachmentsEmpty')}</p>
+          ) : (
+            <ul className="space-y-2 max-h-48 overflow-y-auto pe-1">
+              {files.map((att) => (
+                <li
+                  key={att.id}
+                  className="flex items-center justify-between gap-2 border border-gray-100 rounded-xl px-2 py-2 bg-gray-50/80"
+                >
+                  <div className="min-w-0 flex-1 text-start">
+                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wide">
+                      {attachmentCategoryLabel(t, att.category)}
+                    </span>
+                    <p className="text-xs text-gray-800 font-medium truncate" title={att.original_name}>
+                      {att.original_name}
+                    </p>
+                    <p className="text-[10px] text-gray-400">{formatAttachmentBytes(att.size_bytes)}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onDownloadAttachment(att)}
+                    className="shrink-0 p-2 rounded-lg text-gray-500 hover:bg-white hover:text-blue-600"
+                    title={t('doctor.patients.downloadFile')}
+                  >
+                    <Download size={16} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>>
+
         <button
           type="button"
           onClick={onClose}
@@ -237,6 +280,8 @@ export default function DoctorPatientsPage() {
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [viewPatient, setViewPatient] = useState(null);
+  const [viewAttachments, setViewAttachments] = useState([]);
+  const [viewLoading, setViewLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const apiOrigin = getApiOrigin();
@@ -299,6 +344,36 @@ export default function DoctorPatientsPage() {
     () => patients.filter((p) => p.name.includes(search) || p.pid.includes(search)),
     [patients, search]
   );
+
+  const openPatientFile = async (p) => {
+    setViewPatient(p);
+    setViewAttachments([]);
+    setViewLoading(true);
+    try {
+      const res = await axiosInstance.get(DOCTOR_API.PATIENT_BY_ID(p.id));
+      const data = res.data || {};
+      setViewPatient((prev) => ({
+        ...prev,
+        email: data.patient?.email ?? prev?.email ?? '',
+        phone: data.patient?.phone ?? prev?.phone ?? '',
+      }));
+      setViewAttachments(Array.isArray(data.attachments) ? data.attachments : []);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, t('authErrors.default')));
+      setViewPatient(null);
+    } finally {
+      setViewLoading(false);
+    }
+  };
+
+  const handleDownloadAttachment = async (att) => {
+    try {
+      const res = await axiosInstance.get(DOCTOR_API.MEDICAL_ATTACHMENT_DOWNLOAD(att.id), { responseType: 'blob' });
+      downloadBlobFile(att.original_name || `file-${att.id}`, res.data);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, t('doctor.patients.loadFileError')));
+    }
+  };
 
   return (
     <div className="p-4 md:p-6 space-y-5">
@@ -364,7 +439,7 @@ export default function DoctorPatientsPage() {
                 <div className="flex items-center justify-between gap-2">
                   <button
                     type="button"
-                    onClick={() => setViewPatient(p)}
+                    onClick={() => void openPatientFile(p)}
                     className="flex items-center gap-1 border border-blue-200 text-blue-600 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
                   >
                     <Eye size={13} />
@@ -399,7 +474,7 @@ export default function DoctorPatientsPage() {
               <div className="hidden md:grid grid-cols-6 gap-3 items-center text-center">
                 <button
                   type="button"
-                  onClick={() => setViewPatient(p)}
+                  onClick={() => void openPatientFile(p)}
                   className="flex items-center justify-center gap-1 border border-blue-200 text-blue-600 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors mx-auto"
                   title={t('doctor.patients.openFile')}
                   aria-label={t('doctor.patients.openFile')}
@@ -452,8 +527,14 @@ export default function DoctorPatientsPage() {
       {viewPatient && (
         <ViewPatientModal
           patient={viewPatient}
-          onClose={() => setViewPatient(null)}
+          attachments={viewAttachments}
+          loadingDetails={viewLoading}
+          onClose={() => {
+            setViewPatient(null);
+            setViewAttachments([]);
+          }}
           onCareStatusChange={patchPatientCareStatus}
+          onDownloadAttachment={(att) => void handleDownloadAttachment(att)}
         />
       )}
 

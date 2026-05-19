@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\MedicalRecord;
 use App\Models\MedicalRecordAttachment;
+use App\Support\DoctorPatientAccess;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -76,8 +77,16 @@ class MedicalRecordAttachmentController extends Controller
 
     private function authorizeAttachment(Request $request, MedicalRecordAttachment $attachment): void
     {
-        if ((int) $attachment->patient_id !== (int) $request->user()->id) {
-            abort(404);
+        $user = $request->user();
+
+        if ((int) $attachment->patient_id === (int) $user->id) {
+            return;
         }
+
+        if ($user->role === 'doctor' && DoctorPatientAccess::doctorHasPatient((int) $user->id, (int) $attachment->patient_id)) {
+            return;
+        }
+
+        abort(404);
     }
 }

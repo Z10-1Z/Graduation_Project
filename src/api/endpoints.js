@@ -97,6 +97,8 @@ export const ADMIN = {
 export const DOCTOR_API = {
   PATIENTS: '/doctor/patients',
   PATIENT_BY_ID: (id) => `/doctor/patients/${id}`,
+  PATIENT_MEDICAL_RECORD: (id) => `/doctor/patients/${id}/medical-record`,
+  MEDICAL_ATTACHMENT_DOWNLOAD: (id) => `/doctor/medical-records/attachments/${id}/download`,
   PATIENT_CARE_STATUS: (id) => `/doctor/patients/${id}/care-status`,
   PRESCRIPTIONS: '/doctor/prescriptions',
   PRESCRIPTION_BY_ID: (id) => `/doctor/prescriptions/${id}`,
